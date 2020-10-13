@@ -26,10 +26,10 @@ var hunger = 0;
 
 function preload() {
     // Runs once, loads up assets like images and audio
-    this.load.image("tiles", "../assets/tilesets/basictiles.png");
-    this.load.tilemapTiledJSON("map", "../assets/tilemaps/world.json");
-    this.load.spritesheet('characters', '../assets/tilesets/characters.png', { frameWidth: 16, frameHeight: 16 });
-    this.load.spritesheet('poop', '../assets/tilesets/poop.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.image("tiles", "assets/tilesets/basictiles.png");
+    this.load.tilemapTiledJSON("map", "assets/tilemaps/world.json");
+    this.load.spritesheet('characters', 'assets/tilesets/characters.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet('poop', 'assets/tilesets/poop.png', { frameWidth: 16, frameHeight: 16 });
 }
 
 function create() {
