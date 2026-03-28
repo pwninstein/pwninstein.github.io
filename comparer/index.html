@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', () => addItem(2));
+
+            function reset() {
+                itemsElement.innerHTML = '';
+                addItem(2);
+            }
+
+            function addItem(numLines = 1) {
+                [...Array(numLines)].map(() => 
+                    itemsElement.append(itemTemplate.children[0].cloneNode(true))
+                );
+            }
+
+            function removeItem(element) {
+                element.closest('.item').remove();
+                recompute();
+            }
+
+            const maybeGetNumber = (n) => !isNaN(parseFloat(n)) && isFinite(n) ? parseFloat(n) : undefined;
+
+            function recompute() {
+                var lowestElement, lowestPpu;
+
+                itemsElement.querySelectorAll('.item').forEach((itemEl, index) => {
+                    var price = maybeGetNumber(itemEl.querySelector('input.price').value);
+                    var quantity = maybeGetNumber(itemEl.querySelector('input.quantity').value);
+                    var ppuElement = itemEl.querySelector('.per-unit');
+                    
+                    itemEl.classList.remove('lowest');
+                    ppuElement.innerHTML = '?';
+
+                    if (price == null || quantity == null) return;
+
+                    var ppu = price / quantity;
+                    if (!isFinite(ppu)) return;
+
+                    ppuElement.innerHTML = ppu.toFixed(2);
+                    if (lowestPpu == null || ppu < lowestPpu) {
+                        lowestElement = itemEl;
+                        lowestPpu = ppu;
+                    }
+                });
+
+                lowestElement?.closest('.item').classList.add('lowest');
+            }
+        </script>
+        <style type="text/css">
+            input.price, input.quantity { width: 5em; text-align: right; }
+            .item { padding: 0.25em 0; }
+            .item.lowest::after { content: "← lowest"; }
+            #itemTemplate { display: none; }
+            #itemsElement { margin-top: 0.5em; }
+        </style>
+        <title>Comparer</title>
+    </head>
+    <body>
+        <a href="/">Home</a>
+        <h1>Comparer</h1>
+        <h4>Enter the prices and quantities of your items to find the best deal.</h4>
+        <div>
+            <input type="button" id="add-item-button" value="Add" onclick="addItem()"/>
+            <input type="button" id="clear-button" value="Reset" onclick="reset()"/>
+            <div id="itemsElement"></div>
+        </div>
+        <div id="itemTemplate">
+            <div class="item">
+                <input type="button" class="remove" value="x" onclick="removeItem(this)"/>
+                <input type="number" name="price" class="price" placeholder="price" onchange="recompute()" onkeyup="recompute()"/>
+                <span> / </span>
+                <input type="number" name="quantity" class="quantity" placeholder="qty" onchange="recompute()" onkeyup="recompute()"/>
+                <span> = </span>
+                <span type="number" class="per-unit" placeholder="per-unit">?</span>
+            </div>
+        </div>
+    </body>
+</html>

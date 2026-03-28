@@ -1,0 +1,163 @@
+body{
+    font-size: .85em;
+    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+}
+
+footer ul { list-style: none; padding: 0; }
+footer ul li { display: inline; }
+
+.rune, .gem, .jewel {
+	height: 35px;
+	width: 35px;
+	border: thin solid black;
+}
+
+.rune { background-image:url('runes.png'); }
+.gem { background-image:url('gems-and-jewels.png'); }
+
+.el { background-position: 0px 0px; }
+.eld { background-position: -32px 0px; }
+.tir { background-position: -64px 0px; }
+.nef { background-position: -96px 0px; }
+.eth { background-position: -128px 0px; }
+
+.ith { background-position: 0px -32px; }
+.tal { background-position: -32px -32px; }
+.ral { background-position: -64px -32px; }
+.ort { background-position: -96px -32px; }
+.thul { background-position: -128px -32px; }
+
+.amn { background-position: -0px -64px; }
+.sol { background-position: -32px -64px; }
+.shael { background-position: -64px -64px; }
+.dol { background-position: -96px -64px; }
+.hel { background-position: -128px -64px; }
+
+.io { background-position: -0px -96px; }
+.lum { background-position: -32px -96px; }
+.ko { background-position: -64px -96px; }
+.fal { background-position: -96px -96px; }
+.lem { background-position: -128px -96px; }
+
+.pul { background-position: -0px -128px; }
+.um { background-position: -32px -128px; }
+.mal { background-position: -64px -128px; }
+.ist { background-position: -96px -128px; }
+.gul { background-position: -128px -128px; }
+
+.vex { background-position: -0px -160px; }
+.ohm { background-position: -32px -160px; }
+.lo { background-position: -64px -160px; }
+.sur { background-position: -96px -160px; }
+.ber { background-position: -128px -160px; }
+
+.jah { background-position: -0px -192px; }
+.cham { background-position: -32px -192px; }
+.zod { background-position: -64px -192px; }
+
+.chipped-amethyst { background-position: 0px 0px; }
+.flawed-amethyst { background-position: -32px 0px; }
+.amethyst { background-position: -64px 0px; }
+.flawless-amethyst { background-position: -96px 0px; }
+.perfect-amethyst { background-position: -128px 0px; }
+
+.chipped-sapphire { background-position: 0px -32px; }
+.flawed-sapphire { background-position: -32px -32px; }
+.sapphire { background-position: -64px -32px; }
+.flawless-sapphire { background-position: -96px -32px; }
+.perfect-sapphire { background-position: -128px -32px; }
+
+.chipped-emerald { background-position: 0px -64px; }
+.flawed-emerald { background-position: -32px -64px; }
+.emerald { background-position: -64px -64px; }
+.flawless-emerald { background-position: -96px -64px; }
+.perfect-emerald { background-position: -128px -64px; }
+
+.chipped-ruby { background-position: 0px -96px; }
+.flawed-ruby { background-position: -32px -96px; }
+.ruby { background-position: -64px -96px; }
+.flawless-ruby { background-position: -96px -96px; }
+.perfect-ruby { background-position: -128px -96px; }
+
+.chipped-diamond { background-position: 0px -128px; }
+.flawed-diamond { background-position: -32px -128px; }
+.diamond { background-position: -64px -128px; }
+.flawless-diamond { background-position: -96px -128px; }
+.perfect-diamond { background-position: -128px -128px; }
+
+.chipped-topaz { background-position: 0px -160px; }
+.flawed-topaz { background-position: -32px -160px; }
+.topaz { background-position: -64px -160px; }
+.flawless-topaz { background-position: -96px -160px; }
+.perfect-topaz { background-position: -128px -160px; }
+
+#toolbar {
+	border: thin solid black;
+	padding: 5px;
+	margin: 5px;
+}
+#toolbar div {
+	display:inline-block;
+	cursor: pointer;
+	margin: 2px 2px -3px 2px;
+}
+#inventory-container{
+	vertical-align: top;
+	text-align: center;
+	border: thin solid black;
+}
+#inventory {
+	padding: 5px;
+	width: 420px;
+}
+#inventory div {
+	display: inline-block;
+}
+#drag-threshold {
+	margin: 5px;
+	border: thin solid black;
+	background-color: #ccc;
+	padding: 5px;
+}
+#cube-container {
+	text-align: center;
+	display: inline-block;
+	border: thin solid black;
+	position: relative;
+	padding: 5px;
+}
+#horadric-cube {
+	width:135px;
+	text-align:center;
+}
+#rules-container {
+    text-align:center;
+    display:inline-block;
+}
+#rules-container h2 {
+	text-align:center;
+}
+#rules{
+	border: thin solid black;
+	overflow: auto;
+	height: 200px;
+	padding: 5px;
+}
+.slot {
+	width: 35px;
+	height: 35px;
+	border: thin solid black;
+	display: inline-block;
+	vertical-align: bottom;
+	margin: 2px;
+}
+.slot-open {
+	background-color: green;
+}
+.box{
+    display: inline-block;
+    vertical-align: top;
+}
+.box h2 {
+    text-align: center;
+}

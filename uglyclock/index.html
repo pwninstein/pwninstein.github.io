@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <script type="text/javascript">
+        var sweetFonts = ['Papyrus', 'Comic Sans MS', 'Times New Roman', 'Impact', 'Helvetica', 'Garamond', 'Trebuchet MS'];
+        
+        document.addEventListener('DOMContentLoaded', () => {            
+            setInterval(updateClock, 1000);
+            updateClock();
+            randomize();
+        });
+        
+        function randBetwen(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getRandomHexColor() {
+            return '#' + [...new Array(3)].map(i => randBetwen(0, 14).toString(16)).join('');
+        }
+
+        function randomize() {
+            theClock.style.fontFamily = sweetFonts[randBetwen(0, sweetFonts.length - 1)];
+            theClock.style.color = getRandomHexColor();
+            theClock.style.fontSize = randBetwen(10, 60);
+
+            document.body.style.backgroundColor = getRandomHexColor();
+        }
+
+        function updateClock() {
+            var parts = new Date().toISOString().split('T');
+           
+            theDate.innerHTML = parts[0];
+            theTime.innerHTML = parts[1].split('.')[0];
+        }
+    </script>
+    <style type="text/css">
+        @keyframes pulsate {
+            0% { opacity: 0.4; }
+            50% { opacity: 1.0; }
+            100% { opacity: 0.4; }
+        }
+
+        a { 
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0.5em;
+        }
+
+        body {
+            display: flex;
+            margin: 0;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #theClock {
+            text-align: center;
+            font-size: xx-large;
+            user-select: none; 
+            cursor: pointer;
+            animation: 2s ease-in 1s infinite reverse both running pulsate;
+        }
+    </style>
+    <title>Ugly Clock</title>
+</head>
+<body>
+    <a href="/">Home</a>
+    <div id="theClock" onclick="randomize()">
+        <div id="theDate"></div>
+        <div id="theTime"></div>
+    </div>
+</body>
+</html>

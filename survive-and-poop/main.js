@@ -114,7 +114,7 @@ function create() {
     hungerOutline.isFilled = false;
 
     hungerBar = this.add.rectangle(4, 28, 148, 18, 0xFF0000).setOrigin(0, 0);
-    this.add.text(5, 27, 'Hunger', { fontFamily: 'Verdana' });
+    var hungerText = this.add.text(5, 29, 'Hunger', { fontFamily: 'Verdana' });
 }
 
 

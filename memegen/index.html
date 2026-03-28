@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Meme Generator</title>
+    <script type="text/javascript">
+        var image, ctx;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            image = new Image();
+            ctx = canvas.getContext('2d');
+            
+            image.crossOrigin = "Anonymous";
+            image.referrerPolicy = "no-referrer";
+            image.onload = function () {
+                drawText();
+            };
+        });
+
+        function populateCanvasImage(url) {
+            if (url != null) image.src = url;
+        }
+
+        function downloadImage(anchor) {
+            anchor.href = canvas.toDataURL();
+            anchor.download = "image.jpg";
+        }
+
+        function drawText() {
+            if (image.src) {
+                canvas.width = image.width;
+                canvas.height = image.height;
+                ctx.drawImage(image, 0, 0);
+            }
+            
+            ctx.font = "normal 32px Impact";
+            ctx.fillStyle = "#FFFFFF";
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "#000000";
+
+            var topX = 20;
+            var topY = 40;
+            var bottomX = 20;
+            var bottomY = canvas.height - 20;
+
+            ctx.fillText(topText.value, topX, topY);
+            ctx.fillText(bottomText.value, bottomX, bottomY);
+            ctx.strokeText(topText.value, topX, topY);
+            ctx.strokeText(bottomText.value, bottomX, bottomY);
+        }
+    </script>
+    <style type="text/css">
+        #topText, #bottomText { display: block; margin-top: 0.25em; }
+        input[type=text] { width: 20em; }
+    </style>
+</head>
+<body>
+    <a href="/">Home</a>
+    <h1>Meme Generator</h1>
+    <div>
+        <input type="text" id="imageUrl" placeholder="url (imgur works)"/>
+        <input type="button" value="Get image" onclick="populateCanvasImage(imageUrl.value)"/>
+    </div>
+    <div>
+        <input type="text" id="topText" placeholder="top text" onkeyup="drawText()"/>
+        <input type="text" id="bottomText" placeholder="bottom text" onkeyup="drawText()"/>
+        <br />
+        <a href="#" id="downloadLink" target="_blank" onclick="downloadImage(this)">Download</a>
+    </div>
+    <canvas id="canvas" width="800" height="600" style="border: thin solid black;" />
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Loan Payoff</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="main.js"></script>
+    <style type="text/css">
+        table,
+        th,
+        td {
+            border: thin solid gray;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 0.3em;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <div>
+            <label>
+                Initial Principal ($): <input type="number" id="initial-principal" value="20000" />
+            </label>
+        </div>
+        <div>
+            <label>
+                Remaining Principal ($): <input type="number" id="remaining-principal" value="20000" />
+            </label>
+        </div>
+        <div>
+            <label>
+                Additional Principal ($): <input type="number" id="additional-principal" value="0" />
+            </label>
+        </div>
+        <div>
+            <label>
+                Interest Rate (%): <input type="number" id="interest-rate" value="5" />
+            </label>
+        </div>
+        <div>
+            <label>
+                Years: <input type="number" id="years" value="6" />
+            </label>
+            <input type="submit" value="Go" id="go-button" />
+        </div>
+    </form>
+    <br />
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Payment Amount</th>
+                <th>Principal Payment</th>
+                <th>Interest Payment</th>
+                <th>Remianing Principal</th>
+                <th>Principal Paid</th>
+                <th>Interest Paid</th>
+                <th>Total Paid</th>
+            </tr>
+        </thead>
+        <tbody id="results-tbody">
+        </tbody>
+    </table>
+</body>
+
+</html>
