@@ -1,13 +1,35 @@
-var canvasWidth, canvasHeight, canvas;
-var xmin, xmax, ymin, ymax, iterations, showbox = true;
-/** @type {CanvasRenderingContext2D} */
-var context, imageData, pixels;
+/** @type {number} **/
+var canvasWidth;
+/** @type {number} **/
+var canvasHeight;
+/** @type {HTMLCanvasElement} **/
+var canvas;
+/** @type {number} **/
+var xmin;
+/** @type {number} **/
+var xmax;
+/** @type {number} **/
+var ymin;
+/** @type {number} **/
+var ymax;
+/** @type {number} **/
+var iterations;
+var showbox = true;
+/** @type {CanvasRenderingContext2D} **/
+var context;
+/** @type {ImageData} **/
+var imageData;
+/** @type {Uint32Array} **/
+var pixels;
 
-document.addEventListener('DOMContentLoaded', function () {
-
-    var canvas = document.getElementById('canvas');
-    canvas.addEventListener('mousedown', function (e) { Zoom(canvas, e); });
-    canvas.addEventListener('mousemove', function (e) { DrawBox(canvas, e); });
+document.addEventListener("DOMContentLoaded", function () {
+    var canvas = theCanvas;
+    canvas.addEventListener("mousedown", function (e) {
+        Zoom(canvas, e);
+    });
+    canvas.addEventListener("mousemove", function (e) {
+        DrawBox(canvas, e);
+    });
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
     context = canvas.getContext("2d");
@@ -15,18 +37,18 @@ document.addEventListener('DOMContentLoaded', function () {
     imageData = context.createImageData(canvas.width, canvas.height);
     pixels = new Uint32Array(imageData.data.buffer);
 
-    document.getElementById('go-button').onclick = function(event) {
-        event.preventDefault();        
+    goButton.onclick = function (event) {
+        event.preventDefault();
         Go();
     };
 
-    document.getElementById('reset-button').onclick = function(){
+    resetButton.onclick = function () {
         SetRange(-2, 2, -2, 2);
         SetIterations(50);
         Go();
-    }
+    };
 
-    document.getElementById('showbox').addEventListener( 'change', function() {
+    showboxInput.addEventListener("change", function () {
         showbox = this.checked;
         DrawImageData();
     });
@@ -34,111 +56,103 @@ document.addEventListener('DOMContentLoaded', function () {
     Go();
 });
 
-function Go(){
+function Go() {
     UpdateParams();
     RecalculateAndRedraw();
 }
 
-function UpdateParams(){
-    xmin = +(document.getElementById('xmin').value);
-    xmax = +(document.getElementById('xmax').value);
-    ymin = +(document.getElementById('ymin').value);
-    ymax = +(document.getElementById('ymax').value);
-    iterations = +(document.getElementById('iterations').value);
+function UpdateParams() {
+    xmin = +xminInput.value;
+    xmax = +xmaxInput.value;
+    ymin = +yminInput.value;
+    ymax = +ymaxInput.value;
+    iterations = +iterationsInput.value;
 }
 
-function RecalculateAndRedraw(){
+function RecalculateAndRedraw() {
     CalculateVelocities();
     CalculateImageData();
     DrawImageData();
 }
 
-function SetRange(xmin2, xmax2, ymin2, ymax2){
-    document.getElementById('xmin').value = xmin = xmin2;
-    document.getElementById('xmax').value = xmax = xmax2
-    document.getElementById('ymin').value = ymin = ymin2;
-    document.getElementById('ymax').value = ymax = ymax2;
+function SetRange(xmin2, xmax2, ymin2, ymax2) {
+    xminInput.value = xmin = xmin2;
+    xmaxInput.value = xmax = xmax2;
+    yminInput.value = ymin = ymin2;
+    ymaxInput.value = ymax = ymax2;
 }
 
-function SetIterations(iterations){
-    document.getElementById('iterations').value =  iterations;
+function SetIterations(iterations) {
+    iterationsInput.value = iterations;
 }
 
 var isZooming = false;
 var animationFrames = 30;
 var currentFrame = 0;
 var newImage;
-var zInitLeft, zInitTop, zInitRight, zInitBottom;
+var zInitLeft;
+var zInitTop;
 
 function Zoom(canvas, event) {
     UpdateParams();
 
-    var rect = canvas.getBoundingClientRect();
-    var x = event.clientX - rect.left;
-    var y = event.clientY - rect.top;
+    var { x, y } = getMousePosition(canvas, event);
 
-    SetRange(
-        GetR(x - (canvasWidth / 8)), 
-        GetR(x + (canvasWidth / 8)), 
-        GetI(y - (canvasHeight / 8)), 
-        GetI(y + (canvasHeight / 8)));
+    SetRange(CanvasToWorldX(x - canvasWidth / 8), CanvasToWorldX(x + canvasWidth / 8), CanvasToWorldY(y - canvasHeight / 8), CanvasToWorldY(y + canvasHeight / 8));
 
     isZooming = true;
     currentFrame = 0;
-    zInitLeft = (x - (canvasWidth / 8));
-    zInitTop = (y - (canvasHeight / 8));
-    zInitRight = (x + (canvasWidth / 8));
-    zInitBottom = (y + (canvasHeight / 8));
-    createImageBitmap(imageData).then(function(response){
+    zInitLeft = x - canvasWidth / 8;
+    zInitTop = y - canvasHeight / 8;
+    createImageBitmap(imageData).then(function (response) {
         newImage = response;
         window.requestAnimationFrame(AnimateZoom);
     });
 }
 
-function AnimateZoom(timestamp){
+function AnimateZoom() {
     currentFrame++;
     var factor = currentFrame / animationFrames;
-    
-    // context.drawImage(newImage, 
-    //     zInitLeft, 
-    //     zInitTop, 
-    //     zInitRight - zInitLeft, 
-    //     zInitBottom - zInitTop, 
-    //     zInitLeft - zInitLeft * factor,
-    //     zInitTop - zInitTop * factor, 
-    //     (zInitRight - zInitLeft) + (canvasWidth - (zInitRight - zInitLeft)) * factor, 
-    //     (zInitBottom - zInitTop) + (canvasHeight - (zInitBottom - zInitTop)) * factor);
-    
-    
-    context.drawImage(newImage, 
-        -zInitLeft * 4 * factor,
-        -zInitTop * 4 * factor, 
-        canvasWidth + ((canvasWidth * 4 - canvasWidth) * factor), 
-        canvasHeight + ((canvasHeight * 4 - canvasHeight) * factor));
 
-    if(currentFrame < animationFrames){
+    context.drawImage(
+        newImage,
+        -zInitLeft * 4 * factor,
+        -zInitTop * 4 * factor,
+        canvasWidth + (canvasWidth * 4 - canvasWidth) * factor,
+        canvasHeight + (canvasHeight * 4 - canvasHeight) * factor,
+    );
+
+    if (currentFrame < animationFrames) {
         window.requestAnimationFrame(AnimateZoom);
-    }else{
+    } else {
         isZooming = false;
         RecalculateAndRedraw();
     }
 }
 
-function DrawBox(canvas, event) {
-    if(!showbox || isZooming) return;
-    
+function getMousePosition(canvas, event) {
     var rect = canvas.getBoundingClientRect();
-    var x = event.clientX - rect.left;
-    var y = event.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    var x = (event.clientX - rect.left) * scaleX;
+    var y = (event.clientY - rect.top) * scaleY;
+
+    return { x, y };
+}
+
+function DrawBox(canvas, event) {
+    if (!showbox || isZooming) return;
+
+    var { x, y } = getMousePosition(canvas, event);
 
     context.putImageData(imageData, 0, 0);
 
-    context.fillStyle = 'rgba(128,128,128,0.3)';
+    context.fillStyle = "rgba(128,128,128,0.3)";
     context.fillRect(x - canvasWidth / 8, y - canvasHeight / 8, canvasHeight / 4, canvasHeight / 4);
 }
 
 /** @type {Array.<Array.<number>>} */
-var velocities
+var velocities;
 
 function CalculateVelocities() {
     var startTime = new Date();
@@ -150,13 +164,18 @@ function CalculateVelocities() {
     }
 
     for (var x = 0; x < canvasWidth; x++) {
-        var r = GetR(x);
+        var r = CanvasToWorldX(x);
 
         for (var y = 0; y < canvasHeight; y++) {
-            var i = GetI(y), zr = 0, zi = 0, velocity = 0, absoluteValueSquared = 0;
+            var i = CanvasToWorldY(y);
+            var zr = 0;
+            var zi = 0;
+            var velocity = 0;
+            var absoluteValueSquared = 0;
 
             for (var iterationNumber = 0; iterationNumber < iterations; iterationNumber++) {
-                var zrtemp = zr * zr - zi * zi, zitemp = zr * zi + zi * zr;
+                var zrtemp = zr * zr - zi * zi;
+                var zitemp = zr * zi + zi * zr;
 
                 zr = zrtemp + r;
                 zi = zitemp + i;
@@ -166,7 +185,7 @@ function CalculateVelocities() {
                 if (absoluteValueSquared >= 4) {
                     velocity = iterationNumber;
                     break;
-                };
+                }
             }
 
             velocities[y][x] = absoluteValueSquared >= 4 ? velocity : null;
@@ -183,13 +202,12 @@ function CalculateImageData() {
 
     for (var y = 0; y < velocities.length; y++) {
         for (var x = 0; x < velocities[y].length; x++) {
-
             var pixel = 255 << 24;
 
             if (velocities[y][x] != null) {
                 var rgb = hslToRgb(velocities[y][x] / iterations, 1, 0.5);
 
-                pixel = 255 << 24 | (rgb[2] << 16) | (rgb[1] << 8) | rgb[0];
+                pixel = (255 << 24) | (rgb[2] << 16) | (rgb[1] << 8) | rgb[0];
             }
 
             pixels[x + y * canvasWidth] = pixel;
@@ -199,7 +217,7 @@ function CalculateImageData() {
     console.log("CalculateImageData took " + (new Date().getTime() - startTime.getTime()) + " ms");
 }
 
-function DrawImageData(){
+function DrawImageData() {
     context.putImageData(imageData, 0, 0);
 }
 
@@ -227,7 +245,7 @@ function hslToRgb(h, s, l) {
             if (t < 1 / 2) return q;
             if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
             return p;
-        }
+        };
 
         var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
         var p = 2 * l - q;
@@ -239,10 +257,10 @@ function hslToRgb(h, s, l) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-function GetR(x) {
-    return xmin + (((xmax - xmin) / canvasWidth * x));
+function CanvasToWorldX(x) {
+    return xmin + ((xmax - xmin) / canvasWidth) * x;
 }
 
-function GetI(y) {
-    return (-(ymin + (((ymax - ymin) / canvasHeight * y))));
+function CanvasToWorldY(y) {
+    return -(ymin + ((ymax - ymin) / canvasHeight) * y);
 }

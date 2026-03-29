@@ -1,215 +1,216 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Conway's Game of Life</title>
-    <script type="text/javascript">
+    <head>
+        <meta charset="utf-8" />
+        <title>Conway's Game of Life</title>
+        <link rel="stylesheet" type="text/css" href="/base.css" />
+        <script type="text/javascript">
+            /** @type {HTMLCanvasElement} **/
+            var canvas;
+            /** @type {CanvasRenderingContext2D} **/
+            var ctx;
+            var theBoard = new board(20, 30, 20);
+            var mouseX = -1
+            var mouseY = -1;
+            var clickFlag = false;
+            var isRunning = false;
+            var generationInterval = 20;
+            var refreshCount = 0;
+            var nextGenerationFlag = false;
 
-        var canvas, context;
-        var theBoard = new board(17, 30, 20);
-        var mouseX = -1, mouseY = -1;
-        var clickFlag = false;
-        var isRunning = false;
-        var generationInterval = 20;
-        var refreshCount = 0;
-        var nextGenerationFlag = false;
-        var generation = 0;
+            function onLoad() {
+                canvas = document.getElementById("canvas");
+                ctx = canvas.getContext("2d");
+                topText = document.getElementById("top");
+                bottomText = document.getElementById("bottom");
 
-        function onLoad() {
+                canvas.onmousemove = function (e) {
+                    var rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
 
-            canvas = document.getElementById('canvas');
-            context = canvas.getContext('2d');
-            topText = document.getElementById('top');
-            bottomText = document.getElementById('bottom');
+                    mouseX = (e.clientX - rect.left) * scaleX;
+                    mouseY = (e.clientY - rect.top) * scaleY;
+                };
 
-            canvas.onmousemove = function (e) {
-                var r = canvas.getBoundingClientRect();
-                mouseX = e.clientX - r.left,
-                mouseY = e.clientY - r.top;
-            };
+                canvas.onmouseup = function () {
+                    clickFlag = true;
+                };
 
-            canvas.onmouseup = function () {
-                clickFlag = true;
+                setInterval(refresh, 50);
             }
 
-            setInterval(refresh, 50);
-        }
-
-        function refresh() {
-            update();
-            draw();
-            refreshCount++;
-        }
-
-        function update() {
-            theBoard.update();
-
-            nextGenerationFlag = refreshCount % generationInterval == 0;
-
-            if (isRunning && nextGenerationFlag) generation++;
-
-            clickFlag = false;
-        }
-
-        function draw() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            theBoard.draw();
-            
-            context.font = 'normal 12pt Lucida Console';
-            context.fillText('generation: ' + generation, 0, 365);
-            context.fillText('x:          ' + mouseX.toFixed(0), 0, 380);
-            context.fillText('y:          ' + mouseY.toFixed(0), 0, 395);
-        }
-
-        function board(rows, columns, tileSize) {
-            this.columns = columns;
-            this.rows = rows;
-            this.tiles = new Array(this.rows);
-
-            for (var y = 0; y < this.rows; y++) {
-                this.tiles[y] = new Array(columns);
-                for (var x = 0; x < this.columns; x++) {
-                    this.tiles[y][x] = new tile(x, y, tileSize);
-                }
+            function refresh() {
+                update();
+                draw();
+                refreshCount++;
             }
 
-            this.clear = function () { 
+            function update() {
+                theBoard.update();
+
+                nextGenerationFlag = refreshCount % generationInterval == 0;
+
+                clickFlag = false;
+            }
+
+            function draw() {
+                ctx.reset();
+
+                ctx.save();
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+
+                theBoard.draw();
+            }
+
+            function board(rows, columns, tileSize) {
+                this.columns = columns;
+                this.rows = rows;
+                this.tiles = new Array(this.rows);
+
                 for (var y = 0; y < this.rows; y++) {
+                    this.tiles[y] = new Array(columns);
                     for (var x = 0; x < this.columns; x++) {
-                        this.tiles[y][x].isAlive = false;
-                        this.tiles[y][x].willBeAlive = false;
+                        this.tiles[y][x] = new tile(x, y, tileSize);
                     }
                 }
-            }
 
-            this.update = function () {
-
-                if (isRunning && nextGenerationFlag) {
+                this.clear = function () {
                     for (var y = 0; y < this.rows; y++) {
                         for (var x = 0; x < this.columns; x++) {
-
-                            var livingNeighbors = 0;
-
-                            // top-left
-                            if (x > 0 && y > 0 && this.tiles[y - 1][x - 1].isAlive) livingNeighbors++;
-                            // top
-                            if (y > 0 && this.tiles[y - 1][x].isAlive) livingNeighbors++;
-                            // top-right
-                            if (x + 1 < columns && y > 0 && this.tiles[y - 1][x + 1].isAlive) livingNeighbors++;
-                            // left
-                            if (x > 0 && this.tiles[y][x - 1].isAlive) livingNeighbors++
-                            // right
-                            if (x + 1 < columns && this.tiles[y][x + 1].isAlive) livingNeighbors++;
-                            // bottom-right
-                            if (x > 0 && y + 1 < rows && this.tiles[y + 1][x - 1].isAlive) livingNeighbors++;
-                            // bottom
-                            if (y + 1 < rows && this.tiles[y + 1][x].isAlive) livingNeighbors++;
-                            // bottom-left
-                            if (x + 1 < columns && y + 1 < rows && this.tiles[y + 1][x + 1].isAlive) livingNeighbors++;
-
-                            this.tiles[y][x].willBeAlive = (this.tiles[y][x].isAlive && livingNeighbors == 2 || livingNeighbors == 3) || livingNeighbors == 3;
+                            this.tiles[y][x].isAlive = false;
+                            this.tiles[y][x].willBeAlive = false;
                         }
                     }
-                }
+                };
 
-                for (var y = 0; y < this.rows; y++) {
-                    for (var x = 0; x < this.columns; x++) {
-                        this.tiles[y][x].update();
+                this.update = function () {
+                    if (isRunning && nextGenerationFlag) {
+                        for (var y = 0; y < this.rows; y++) {
+                            for (var x = 0; x < this.columns; x++) {
+                                var livingNeighbors = 0;
+
+                                // top-left
+                                if (x > 0 && y > 0 && this.tiles[y - 1][x - 1].isAlive) livingNeighbors++;
+                                // top
+                                if (y > 0 && this.tiles[y - 1][x].isAlive) livingNeighbors++;
+                                // top-right
+                                if (x + 1 < columns && y > 0 && this.tiles[y - 1][x + 1].isAlive) livingNeighbors++;
+                                // left
+                                if (x > 0 && this.tiles[y][x - 1].isAlive) livingNeighbors++;
+                                // right
+                                if (x + 1 < columns && this.tiles[y][x + 1].isAlive) livingNeighbors++;
+                                // bottom-right
+                                if (x > 0 && y + 1 < rows && this.tiles[y + 1][x - 1].isAlive) livingNeighbors++;
+                                // bottom
+                                if (y + 1 < rows && this.tiles[y + 1][x].isAlive) livingNeighbors++;
+                                // bottom-left
+                                if (x + 1 < columns && y + 1 < rows && this.tiles[y + 1][x + 1].isAlive) livingNeighbors++;
+
+                                this.tiles[y][x].willBeAlive = (this.tiles[y][x].isAlive && livingNeighbors == 2) || livingNeighbors == 3 || livingNeighbors == 3;
+                            }
+                        }
                     }
-                }
-            }
 
-            this.draw = function () {
-                for (var y = 0; y < this.rows; y++) {
-                    for (var x = 0; x < this.columns; x++) {
-                        this.tiles[y][x].draw();
+                    for (var y = 0; y < this.rows; y++) {
+                        for (var x = 0; x < this.columns; x++) {
+                            this.tiles[y][x].update();
+                        }
                     }
-                }
-            };
-        }
+                };
 
-        function tile(x, y, size) {
-            this.x = x;
-            this.y = y;
-            this.size = size;
-            this.left = this.x * this.size;
-            this.right = this.x * this.size + this.size;
-            this.top = this.y * this.size;
-            this.bottom = this.y * this.size + this.size;
-            this.isHighlighed = false;
-            this.isAlive = false;
-            this.willBeAlive = false;
-            
-            this.update = function () {
-                this.isHighlighed =
-                    mouseX >= this.left && mouseX < this.right &&
-                    mouseY >= this.top && mouseY < this.bottom;
-
-                if (isRunning && nextGenerationFlag) {
-                    this.isAlive = this.willBeAlive;
-                    this.willBeAlive = this.isAlive;
-                }
-
-                if (this.isHighlighed && clickFlag) {
-                    this.isAlive = !this.isAlive;
-                }
+                this.draw = function () {
+                    for (var y = 0; y < this.rows; y++) {
+                        for (var x = 0; x < this.columns; x++) {
+                            this.tiles[y][x].draw();
+                        }
+                    }
+                };
             }
 
-            this.draw = function () {
-                var oldFill = context.fillStyle;
-                var oldStroke = context.strokeStyle;
+            function tile(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.left = this.x * this.size;
+                this.right = this.x * this.size + this.size;
+                this.top = this.y * this.size;
+                this.bottom = this.y * this.size + this.size;
+                this.isHighlighed = false;
+                this.isAlive = false;
+                this.willBeAlive = false;
 
-                context.fillStyle = this.isAlive ? 'green' : 'lightgray';
-                context.strokeStyle = this.isHighlighed ? 'black' : 'white';
+                this.update = function () {
+                    this.isHighlighed = mouseX >= this.left && mouseX < this.right && mouseY >= this.top && mouseY < this.bottom;
 
-                context.fillRect(this.left, this.top, this.size, this.size);
-                context.strokeRect(this.left, this.top, this.size, this.size);
+                    if (isRunning && nextGenerationFlag) {
+                        this.isAlive = this.willBeAlive;
+                        this.willBeAlive = this.isAlive;
+                    }
 
-                context.fillStyle = oldFill;
-                context.strokeStyle = oldStroke;
+                    if (this.isHighlighed && clickFlag) {
+                        this.isAlive = !this.isAlive;
+                    }
+                };
+
+                this.draw = function () {
+                    var oldFill = ctx.fillStyle;
+                    var oldStroke = ctx.strokeStyle;
+
+                    ctx.fillStyle = this.isAlive ? "green" : "lightgray";
+                    ctx.strokeStyle = this.isHighlighed ? "black" : "white";
+
+                    ctx.fillRect(this.left, this.top, this.size, this.size);
+                    ctx.strokeRect(this.left, this.top, this.size, this.size);
+
+                    ctx.fillStyle = oldFill;
+                    ctx.strokeStyle = oldStroke;
+                };
             }
-        }
 
-        function toggleRun() {
-            isRunning = !isRunning;
+            function toggleRun() {
+                isRunning = !isRunning;
 
-            if (isRunning) {                               
-                if (document.getElementById('slowSpeed').checked) generationInterval = 30;
-                if (document.getElementById('normalSpeed').checked) generationInterval = 20;
-                if (document.getElementById('fastSpeed').checked) generationInterval = 10;
+                if (isRunning) {
+                    if (document.getElementById("slowSpeed").checked) generationInterval = 20;
+                    if (document.getElementById("normalSpeed").checked) generationInterval = 10;
+                    if (document.getElementById("fastSpeed").checked) generationInterval = 5;
+                }
+
+                document.getElementById("runButton").value = isRunning ? "Stop" : "Start";
             }
 
-            document.getElementById('runButton').value = isRunning ? 'Stop' : 'Start';   
-        }
+            function clearBoard() {
+                theBoard.clear();
+            }
+        </script>
+        <style type="text/css">
+            body {
+                font-size: 0.85em;
+                font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+            }
+        </style>
+    </head>
+    <body onload="onLoad()">
+        <main class="page wide stack">
+            <a href="/">Home</a>
+            <h2>Conway's Game of Life</h2>
+            <div>
+                <input id="slowSpeed" name="speed" type="radio" value="slow" />
+                <label for="slowSpeed">Slow</label>
 
-        function clearBoard() {
-            theBoard.clear();
-        }
-    </script>
-    <style type="text/css">
-        body {
-            font-size: .85em;
-            font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
-        }
-    </style>
-</head>
-<body onload="onLoad()">
-    <a href="/">Home</a>
-    <h2>Conway's Game of Life</h2>
-    <div>
-        <input id="slowSpeed" name="speed" type="radio" value="slow"/>
-        <label for="slowSpeed">Slow</label>
+                <input id="normalSpeed" name="speed" type="radio" value="normal" checked="checked" />
+                <label for="normalSpeed">Normal</label>
 
-        <input id="normalSpeed" name="speed" type="radio" value="normal" checked="checked" />
-        <label for="normalSpeed">Normal</label>
+                <input id="fastSpeed" name="speed" type="radio" value="fast" />
+                <label for="fastSpeed">Fast</label>
 
-        <input id="fastSpeed" name="speed" type="radio" value="fast" />
-        <label for="fastSpeed">Fast</label>
-
-        <input id="runButton" type="button" onclick="toggleRun()" value="Start"/>
-        <input id="clearButton" type="button" onclick="clearBoard()" value="Clear"/>
-    </div>
-    <canvas id="canvas" width="600" height="400" style="border: thin solid black;" />
-</body>
+                <input id="runButton" type="button" onclick="toggleRun()" value="Start" />
+                <input id="clearButton" type="button" onclick="clearBoard()" value="Clear" />
+            </div>
+            <canvas id="canvas" width="600" height="400" style="width: 100%" />
+        </main>
+    </body>
 </html>

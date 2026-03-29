@@ -1,49 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Mandelbrot</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
-    <script src="main.js"></script>
-</head>
-
-<body>
-    <form>
-        <div>
-            <label>
-                xmin: <input type="number" id="xmin" value="-2" />
-            </label>
-            <label>
-                xmax: <input type="number" id="xmax" value="2" />
-            </label>
-        </div>
-        <div>
-            <label>
-                ymin: <input type="number" id="ymin" value="-2" />
-            </label>
-            <label>
-                ymax: <input type="number" id="ymax" value="2" />
-            </label>
-        </div>
-        <div>
-            <label>
-                iterations: <input type="number" id="iterations" value="50" />
-            </label>
-        </div>
-        <div>
-            <label>
-                show box: <input type="checkbox" id="showbox" checked="checked" />
-            </label>
-        </div>
-        <div>
-            <input type="submit" id="go-button" value="Go" />
-            <input type="button" id="reset-button" value="Reset"/>
-        </div>
-    </form>
-    <canvas id="canvas" width="600" height="600" style="border:1px solid black;"></canvas>
-</body>
-
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Mandelbrot</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" type="text/css" href="/base.css" />
+        <script src="main.js"></script>
+    </head>
+    <body>
+        <main class="page wide stack">
+            <a href="/">Home</a>
+            <h1>Mandelbrot</h1>
+            <form>
+                <div>
+                    <label> xmin: <input type="number" id="xminInput" value="-2" /> </label>
+                    <label> xmax: <input type="number" id="xmaxInput" value="2" /> </label>
+                </div>
+                <div>
+                    <label> ymin: <input type="number" id="yminInput" value="-2" /> </label>
+                    <label> ymax: <input type="number" id="ymaxInput" value="2" /> </label>
+                </div>
+                <div>
+                    <label> iterations: <input type="number" id="iterationsInput" value="50" /> </label>
+                </div>
+                <div>
+                    <label> show box: <input type="checkbox" id="showboxInput" checked="checked" /> </label>
+                </div>
+                <div>
+                    <input type="submit" id="goButton" value="Go" />
+                    <input type="button" id="resetButton" value="Reset" />
+                </div>
+            </form>
+            <canvas id="theCanvas" width="600" height="600" style="width: 100%"></canvas>
+        </main>
+    </body>
 </html>
