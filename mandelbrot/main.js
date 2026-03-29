@@ -1,173 +1,143 @@
-/** @type {number} **/
-var canvasWidth;
-/** @type {number} **/
-var canvasHeight;
-/** @type {HTMLCanvasElement} **/
-var canvas;
-/** @type {number} **/
-var xmin;
-/** @type {number} **/
-var xmax;
-/** @type {number} **/
-var ymin;
-/** @type {number} **/
-var ymax;
+class Viewport {
+    constructor (centerX, centerY, worldWidth, screenWidth, screenHeight) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.worldWidth = worldWidth;
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        this.worldHeight = worldWidth * (screenHeight / screenWidth);
+    }
+
+    screenToWorldX(screenX) {
+        return this.centerX + ((screenX / this.screenWidth) - 0.5) * this.worldWidth;
+    }
+
+    screenToWorldY(screenY) {
+        return this.centerY - ((screenY / this.screenHeight) - 0.5) * this.worldHeight;
+    }
+
+    worldToScreenX(worldX) {
+        return ((worldX - this.centerX) / this.worldWidth + 0.5) * this.screenWidth;
+    }
+
+    worldToScreenY(worldY) {
+        return ((this.centerY - worldY) / this.worldHeight + 0.5) * this.screenHeight;
+    }
+
+    zoomAt(screenX, screenY, factor) {
+        const beforeX = this.screenToWorldX(screenX);
+        const beforeY = this.screenToWorldY(screenY);
+
+        this.worldWidth *= factor;
+        this.worldHeight = this.worldWidth * (this.screenHeight / this.screenWidth);
+
+        const afterX = this.screenToWorldX(screenX);
+        const afterY = this.screenToWorldY(screenY);
+
+        this.centerX += beforeX - afterX;
+        this.centerY += beforeY - afterY;
+    }
+
+    resetZoom(centerX, centerY, worldWidth) {
+        this.worldWidth = worldWidth
+        this.worldHeight = this.worldWidth * (this.screenHeight / this.screenWidth);
+        this.centerX = centerX;
+        this.centerY = centerY;
+    }
+}
+
 /** @type {number} **/
 var iterations;
-var showbox = true;
 /** @type {CanvasRenderingContext2D} **/
-var context;
+var ctx;
 /** @type {ImageData} **/
 var imageData;
 /** @type {Uint32Array} **/
 var pixels;
+/** @type {Array.<Array.<number>>} */
+var velocities;
+/** @type {HTMLCanvasElement} **/
+var canvas = document.getElementById("canvas");
+var viewport = new Viewport(-0.75, 0, 3.5, canvas.width, canvas.height);
 
-document.addEventListener("DOMContentLoaded", function () {
-    var canvas = theCanvas;
-    canvas.addEventListener("mousedown", function (e) {
-        Zoom(canvas, e);
-    });
-    canvas.addEventListener("mousemove", function (e) {
-        DrawBox(canvas, e);
-    });
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    context = canvas.getContext("2d");
+canvas.addEventListener("wheel", onCanvasWheel);
+canvas.addEventListener("click", onCanvasLeftClick);
+canvas.addEventListener("contextmenu", onCanvasRightClick);
+ctx = canvas.getContext("2d");
 
-    imageData = context.createImageData(canvas.width, canvas.height);
-    pixels = new Uint32Array(imageData.data.buffer);
+imageData = ctx.createImageData(canvas.width, canvas.height);
+pixels = new Uint32Array(imageData.data.buffer);
 
-    goButton.onclick = function (event) {
-        event.preventDefault();
-        Go();
-    };
+iterations = +iterationsInput.value;
 
-    resetButton.onclick = function () {
-        SetRange(-2, 2, -2, 2);
-        SetIterations(50);
-        Go();
-    };
+recalculateAndRedraw();
 
-    showboxInput.addEventListener("change", function () {
-        showbox = this.checked;
-        DrawImageData();
-    });
-
-    Go();
-});
-
-function Go() {
-    UpdateParams();
-    RecalculateAndRedraw();
+function resetViewport() {
+    viewport.resetZoom(-0.75, 0, 3.5);
+    recalculateAndRedraw();
 }
 
-function UpdateParams() {
-    xmin = +xminInput.value;
-    xmax = +xmaxInput.value;
-    ymin = +yminInput.value;
-    ymax = +ymaxInput.value;
-    iterations = +iterationsInput.value;
+function setIterations(value) {
+    iterations = +value;
+    recalculateAndRedraw();
 }
 
-function RecalculateAndRedraw() {
-    CalculateVelocities();
-    CalculateImageData();
-    DrawImageData();
+function recalculateAndRedraw() {
+    calculateVelocities();
+    calculateImageData();
+    drawImageData();
 }
 
-function SetRange(xmin2, xmax2, ymin2, ymax2) {
-    xminInput.value = xmin = xmin2;
-    xmaxInput.value = xmax = xmax2;
-    yminInput.value = ymin = ymin2;
-    ymaxInput.value = ymax = ymax2;
-}
-
-function SetIterations(iterations) {
-    iterationsInput.value = iterations;
-}
-
-var isZooming = false;
-var animationFrames = 30;
-var currentFrame = 0;
-var newImage;
-var zInitLeft;
-var zInitTop;
-
-function Zoom(canvas, event) {
-    UpdateParams();
-
-    var { x, y } = getMousePosition(canvas, event);
-
-    SetRange(CanvasToWorldX(x - canvasWidth / 8), CanvasToWorldX(x + canvasWidth / 8), CanvasToWorldY(y - canvasHeight / 8), CanvasToWorldY(y + canvasHeight / 8));
-
-    isZooming = true;
-    currentFrame = 0;
-    zInitLeft = x - canvasWidth / 8;
-    zInitTop = y - canvasHeight / 8;
-    createImageBitmap(imageData).then(function (response) {
-        newImage = response;
-        window.requestAnimationFrame(AnimateZoom);
-    });
-}
-
-function AnimateZoom() {
-    currentFrame++;
-    var factor = currentFrame / animationFrames;
-
-    context.drawImage(
-        newImage,
-        -zInitLeft * 4 * factor,
-        -zInitTop * 4 * factor,
-        canvasWidth + (canvasWidth * 4 - canvasWidth) * factor,
-        canvasHeight + (canvasHeight * 4 - canvasHeight) * factor,
-    );
-
-    if (currentFrame < animationFrames) {
-        window.requestAnimationFrame(AnimateZoom);
-    } else {
-        isZooming = false;
-        RecalculateAndRedraw();
-    }
-}
-
-function getMousePosition(canvas, event) {
+function getCanvasMousePosition(event) {
     var rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     var x = (event.clientX - rect.left) * scaleX;
-    var y = (event.clientY - rect.top) * scaleY;
+    var y = (event.clientY - rect.top) * scaleY;    
 
     return { x, y };
 }
 
-function DrawBox(canvas, event) {
-    if (!showbox || isZooming) return;
-
-    var { x, y } = getMousePosition(canvas, event);
-
-    context.putImageData(imageData, 0, 0);
-
-    context.fillStyle = "rgba(128,128,128,0.3)";
-    context.fillRect(x - canvasWidth / 8, y - canvasHeight / 8, canvasHeight / 4, canvasHeight / 4);
+/** @param {WheelEvent} event **/
+function onCanvasWheel(event) {
+    event.preventDefault();
+    const { x, y } = getCanvasMousePosition(event);
+    viewport.zoomAt(x, y, event.deltaY < 0 ? 0.7 : 1.3);
+    recalculateAndRedraw();
 }
 
-/** @type {Array.<Array.<number>>} */
-var velocities;
+/** @param {PointerEvent} event **/
+function onCanvasLeftClick(event) {
+    event.preventDefault();
+    const { x, y } = getCanvasMousePosition(event);
+    viewport.zoomAt(x, y, 0.7);
+    recalculateAndRedraw();
+}
 
-function CalculateVelocities() {
-    var startTime = new Date();
+/** @param {PointerEvent} event **/
+function onCanvasRightClick(event) {
+    event.preventDefault();
+    const { x, y } = getCanvasMousePosition(event);
+    viewport.zoomAt(x, y, 1.7);
+    recalculateAndRedraw();
+}
 
-    velocities = new Array(canvasHeight);
+function calculateVelocities() {
+    console.time("calculateVelocities");
 
-    for (var i = 0; i < velocities.length; i++) {
-        velocities[i] = new Array(canvasWidth);
+    if (velocities == null) {
+        velocities = new Array(canvas.height);
+
+        for (var i = 0; i < velocities.length; i++) {
+            velocities[i] = new Array(canvas.width);
+        }
     }
 
-    for (var x = 0; x < canvasWidth; x++) {
-        var r = CanvasToWorldX(x);
+    for (var x = 0; x < canvas.width; x++) {
+        var r = viewport.screenToWorldX(x);
 
-        for (var y = 0; y < canvasHeight; y++) {
-            var i = CanvasToWorldY(y);
+        for (var y = 0; y < canvas.height; y++) {
+            var i = viewport.screenToWorldY(y);
             var zr = 0;
             var zi = 0;
             var velocity = 0;
@@ -192,13 +162,13 @@ function CalculateVelocities() {
         }
     }
 
-    console.log("CalculateVelocities took " + (new Date().getTime() - startTime.getTime()) + " ms");
+    console.timeEnd("calculateVelocities");
 }
 
-function CalculateImageData() {
-    var startTime = new Date();
+function calculateImageData() {
+    console.time("calculateImageData");
 
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (var y = 0; y < velocities.length; y++) {
         for (var x = 0; x < velocities[y].length; x++) {
@@ -210,15 +180,15 @@ function CalculateImageData() {
                 pixel = (255 << 24) | (rgb[2] << 16) | (rgb[1] << 8) | rgb[0];
             }
 
-            pixels[x + y * canvasWidth] = pixel;
+            pixels[x + y * canvas.width] = pixel;
         }
     }
 
-    console.log("CalculateImageData took " + (new Date().getTime() - startTime.getTime()) + " ms");
+    console.timeEnd("calculateImageData");
 }
 
-function DrawImageData() {
-    context.putImageData(imageData, 0, 0);
+function drawImageData() {
+    ctx.putImageData(imageData, 0, 0);
 }
 
 /**
@@ -255,12 +225,4 @@ function hslToRgb(h, s, l) {
     }
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function CanvasToWorldX(x) {
-    return xmin + ((xmax - xmin) / canvasWidth) * x;
-}
-
-function CanvasToWorldY(y) {
-    return -(ymin + ((ymax - ymin) / canvasHeight) * y);
 }

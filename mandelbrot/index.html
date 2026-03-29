@@ -6,33 +6,21 @@
         <title>Mandelbrot</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" type="text/css" href="/base.css" />
-        <script src="main.js"></script>
     </head>
     <body>
         <main class="page wide stack">
             <a href="/">Home</a>
             <h1>Mandelbrot</h1>
-            <form>
+            <form onsubmit="event.preventDefault()">
                 <div>
-                    <label> xmin: <input type="number" id="xminInput" value="-2" /> </label>
-                    <label> xmax: <input type="number" id="xmaxInput" value="2" /> </label>
-                </div>
-                <div>
-                    <label> ymin: <input type="number" id="yminInput" value="-2" /> </label>
-                    <label> ymax: <input type="number" id="ymaxInput" value="2" /> </label>
-                </div>
-                <div>
-                    <label> iterations: <input type="number" id="iterationsInput" value="50" /> </label>
-                </div>
-                <div>
-                    <label> show box: <input type="checkbox" id="showboxInput" checked="checked" /> </label>
-                </div>
-                <div>
-                    <input type="submit" id="goButton" value="Go" />
-                    <input type="button" id="resetButton" value="Reset" />
+                    <label>Iterations: 
+                        <input id="iterationsInput" type="number" min="1" value="50" onchange="setIterations(this.value)" onkeyup="setIterations(this.value)" />
+                    </label>
+                    <input type="button" id="resetButton" value="Reset" onclick="resetViewport()" />
                 </div>
             </form>
-            <canvas id="theCanvas" width="600" height="600" style="width: 100%"></canvas>
+            <canvas id="canvas" width="600" height="600" style="width: 95%"></canvas>
         </main>
+        <script src="main.js"></script>
     </body>
 </html>
