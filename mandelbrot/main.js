@@ -79,10 +79,10 @@ var ctx;
 var imageData;
 /** @type {Uint32Array} **/
 var pixels;
-/** @type {Array.<Array.<number>>} */
-var velocities;
 /** @type {HTMLCanvasElement} **/
 var canvas = document.getElementById("canvas");
+/** @type {HTMLInputElement} **/
+var iterationsInput = document.getElementById("iterationsInput");
 var viewport = new Viewport(-0.75, 0, 3.5, canvas.width, canvas.height);
 
 canvas.addEventListener("wheel", onCanvasWheel);
@@ -95,22 +95,32 @@ pixels = new Uint32Array(imageData.data.buffer);
 
 iterations = +iterationsInput.value;
 
-recalculateAndRedraw();
+/** @type {Array<number>} **/
+var palette;
+
+buildPalette();
+
+calculateAndDraw();
 
 function resetViewport() {
     viewport.reset(-0.75, 0, 3.5);
-    recalculateAndRedraw();
+    calculateAndDraw();
 }
 
 function setIterations(value) {
     iterations = +value;
-    recalculateAndRedraw();
+    buildPalette();
+    calculateAndDraw();
 }
 
-function recalculateAndRedraw() {
-    calculateVelocities();
-    calculateImageData();
-    drawImageData();
+function buildPalette() {
+    palette = new Array(iterations);
+
+    for (var x = 0; x < palette.length; x++) {
+        var rgb = hslToRgb(x / iterations, 1, 0.5);
+
+        palette[x] = (255 << 24) | (rgb[2] << 16) | (rgb[1] << 8) | rgb[0];
+    }
 }
 
 function getCanvasMousePosition(event) {
@@ -134,7 +144,7 @@ function onCanvasWheel(event) {
         viewport.zoomOut();
     }
     
-    recalculateAndRedraw();
+    calculateAndDraw();
 }
 
 /** @param {PointerEvent} event **/
@@ -142,83 +152,57 @@ function onCanvasLeftClick(event) {
     event.preventDefault();
     const { x, y } = getCanvasMousePosition(event);
     viewport.zoomInAt(x, y);
-    recalculateAndRedraw();
+    calculateAndDraw();
 }
 
 /** @param {PointerEvent} event **/
 function onCanvasRightClick(event) {
     event.preventDefault();
     viewport.zoomOut();
-    recalculateAndRedraw();
+    calculateAndDraw();
 }
 
-function calculateVelocities() {
-    console.time("calculateVelocities");
+function calculateAndDraw() {
+    console.time("calculateAndDraw");
 
-    if (velocities == null) {
-        velocities = new Array(canvas.height);
+    var worldMinX = viewport.centerX - viewport.worldWidth / 2;
+    var worldMaxY = viewport.centerY + viewport.worldHeight / 2;
+    var dx = viewport.worldWidth / canvas.width;
+    var dy = viewport.worldHeight / canvas.height;
 
-        for (var i = 0; i < velocities.length; i++) {
-            velocities[i] = new Array(canvas.width);
-        }
-    }
-
-    for (var x = 0; x < canvas.width; x++) {
-        var r = viewport.screenToWorldX(x);
-
-        for (var y = 0; y < canvas.height; y++) {
-            var i = viewport.screenToWorldY(y);
+    for (var y = 0; y < canvas.height; y++) {
+        var i = worldMaxY - y * dy;
+        var r = worldMinX;
+        for (var x = 0; x < canvas.width; x++) {
             var zr = 0;
             var zi = 0;
-            var velocity = 0;
-            var absoluteValueSquared = 0;
+            var escapeIteration = null;
 
             for (var iterationNumber = 0; iterationNumber < iterations; iterationNumber++) {
                 var zrtemp = zr * zr - zi * zi;
-                var zitemp = zr * zi + zi * zr;
-
+                var zitemp = 2 * zr * zi;
+                
                 zr = zrtemp + r;
                 zi = zitemp + i;
 
-                absoluteValueSquared = zr * zr + zi * zi;
+                var absoluteValueSquared = zr * zr + zi * zi;
 
                 if (absoluteValueSquared >= 4) {
-                    velocity = iterationNumber;
+                    escapeIteration = iterationNumber;
                     break;
                 }
             }
 
-            velocities[y][x] = absoluteValueSquared >= 4 ? velocity : null;
-        }
-    }
-
-    console.timeEnd("calculateVelocities");
-}
-
-function calculateImageData() {
-    console.time("calculateImageData");
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (var y = 0; y < velocities.length; y++) {
-        for (var x = 0; x < velocities[y].length; x++) {
-            var pixel = 255 << 24;
-
-            if (velocities[y][x] != null) {
-                var rgb = hslToRgb(velocities[y][x] / iterations, 1, 0.5);
-
-                pixel = (255 << 24) | (rgb[2] << 16) | (rgb[1] << 8) | rgb[0];
-            }
-
+            var pixel = escapeIteration != null ? palette[escapeIteration] : 255 << 24;
             pixels[x + y * canvas.width] = pixel;
+
+            r += dx;
         }
     }
 
-    console.timeEnd("calculateImageData");
-}
-
-function drawImageData() {
     ctx.putImageData(imageData, 0, 0);
+
+    console.timeEnd("calculateAndDraw");
 }
 
 /**
