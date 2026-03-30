@@ -8,6 +8,9 @@ class Viewport {
         this.worldHeight = worldWidth * (screenHeight / screenWidth);
     }
 
+    #zoomStep = 0.7;
+    #cursorPullFactor = 0.8;
+
     screenToWorldX(screenX) {
         return this.centerX + ((screenX / this.screenWidth) - 0.5) * this.worldWidth;
     }
@@ -24,21 +27,43 @@ class Viewport {
         return ((this.centerY - worldY) / this.worldHeight + 0.5) * this.screenHeight;
     }
 
-    zoomAt(screenX, screenY, factor) {
-        const beforeX = this.screenToWorldX(screenX);
-        const beforeY = this.screenToWorldY(screenY);
-
-        this.worldWidth *= factor;
-        this.worldHeight = this.worldWidth * (this.screenHeight / this.screenWidth);
-
-        const afterX = this.screenToWorldX(screenX);
-        const afterY = this.screenToWorldY(screenY);
-
-        this.centerX += beforeX - afterX;
-        this.centerY += beforeY - afterY;
+    zoomInAt(screenX, screenY) {
+        this.#zoomAt(screenX, screenY, -1);
     }
 
-    resetZoom(centerX, centerY, worldWidth) {
+    zoomOutAt(screenX, screenY) {
+        this.#zoomAt(screenX, screenY, 1);
+    }
+
+    zoomIn() {
+        this.#zoom(-1);
+    }
+
+    zoomOut() {
+        this.#zoom(1);
+    }
+
+    #zoomAt(screenX, screenY, direction) {
+        this.centerX += (this.screenToWorldX(screenX) - this.centerX) * this.#cursorPullFactor;
+        this.centerY += (this.screenToWorldY(screenY) - this.centerY) * this.#cursorPullFactor;
+        
+        this.#zoom(direction);
+    }
+
+    #zoom(direction) {
+        this.worldWidth *= Math.exp(direction * this.#zoomStep);
+        this.worldHeight = this.worldWidth * (this.screenHeight / this.screenWidth);
+    }
+
+    pan(dx, dy) {
+        const worldPerPixelX = this.worldWidth / this.screenWidth;
+        const worldPerPixelY = this.worldHeight / this.screenHeight;
+
+        this.centerX -= dx * worldPerPixelX;
+        this.centerY += dy * worldPerPixelY;
+    }
+
+    reset(centerX, centerY, worldWidth) {
         this.worldWidth = worldWidth
         this.worldHeight = this.worldWidth * (this.screenHeight / this.screenWidth);
         this.centerX = centerX;
@@ -73,7 +98,7 @@ iterations = +iterationsInput.value;
 recalculateAndRedraw();
 
 function resetViewport() {
-    viewport.resetZoom(-0.75, 0, 3.5);
+    viewport.reset(-0.75, 0, 3.5);
     recalculateAndRedraw();
 }
 
@@ -101,8 +126,14 @@ function getCanvasMousePosition(event) {
 /** @param {WheelEvent} event **/
 function onCanvasWheel(event) {
     event.preventDefault();
-    const { x, y } = getCanvasMousePosition(event);
-    viewport.zoomAt(x, y, event.deltaY < 0 ? 0.7 : 1.3);
+    
+    if (event.deltaY < 0) {
+        const { x, y } = getCanvasMousePosition(event);
+        viewport.zoomInAt(x, y);
+    } else {
+        viewport.zoomOut();
+    }
+    
     recalculateAndRedraw();
 }
 
@@ -110,15 +141,14 @@ function onCanvasWheel(event) {
 function onCanvasLeftClick(event) {
     event.preventDefault();
     const { x, y } = getCanvasMousePosition(event);
-    viewport.zoomAt(x, y, 0.7);
+    viewport.zoomInAt(x, y);
     recalculateAndRedraw();
 }
 
 /** @param {PointerEvent} event **/
 function onCanvasRightClick(event) {
     event.preventDefault();
-    const { x, y } = getCanvasMousePosition(event);
-    viewport.zoomAt(x, y, 1.7);
+    viewport.zoomOut();
     recalculateAndRedraw();
 }
 
