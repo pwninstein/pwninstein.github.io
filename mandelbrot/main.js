@@ -107,8 +107,13 @@ function resetViewport() {
     calculateAndDraw();
 }
 
+function changeIterationsBy(value) {
+    setIterations(iterations + (+value));
+}
+
 function setIterations(value) {
-    iterations = +value;
+    iterations = Math.max(1, +value);
+    iterationsInput.value = iterations.toString();
     buildPalette();
     calculateAndDraw();
 }

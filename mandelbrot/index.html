@@ -5,20 +5,54 @@
         <title>Mandelbrot</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" type="text/css" href="/base.css" />
+        <style type="text/css">
+            .iterations {
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: row;
+                gap: 1em;
+
+                .buttons {
+                    max-width: 20em;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr 1fr;
+                    gap: 0.25em;
+                }
+            }
+            #iterationsInput {
+                max-width: 7em;
+            }
+        </style>
     </head>
     <body>
         <main class="page wide stack">
             <a href="/">Home</a>
             <h1>Mandelbrot</h1>
-            <form onsubmit="event.preventDefault()">
-                <div>
-                    <label>Iterations: 
-                        <input id="iterationsInput" type="number" min="1" value="50" onchange="setIterations(this.value)" onkeyup="setIterations(this.value)" />
-                    </label>
-                    <input type="button" id="resetButton" value="Reset" onclick="resetViewport()" />
+            <div class="iterations">
+                <label>
+                    Iterations
+                    <input id="iterationsInput" type="number" min="1" value="50" onchange="setIterations(this.value)" onkeyup="setIterations(this.value)" />
+                </label>
+
+                <div class="buttons">
+                    <input type="button" value="+1" onclick="changeIterationsBy(1)" />
+                    <input type="button" value="+10" onclick="changeIterationsBy(10)" />
+                    <input type="button" value="+100" onclick="changeIterationsBy(100)" />
+                    <input type="button" value="+1000" onclick="changeIterationsBy(1000)" />
+                    <input type="button" value="-1" onclick="changeIterationsBy(-1)" />
+                    <input type="button" value="-10" onclick="changeIterationsBy(-10)" />
+                    <input type="button" value="-100" onclick="changeIterationsBy(-100)" />
+                    <input type="button" value="-1000" onclick="changeIterationsBy(-1000)" />
                 </div>
-            </form>
-            <p>Zoom in: left-click / mouse wheel up. Zoom out: right-click / mouse wheel down.</p>
+            </div>
+            <div>
+                <input type="button" value="Reset Iterations" onclick="setIterations(50)" />
+                <input type="button" value="Reset Position / Zoom" onclick="resetViewport()" />
+            </div>
+            <p>
+                Zoom in: left-click / tap / mouse wheel up <br />
+                Zoom out: right-click / long tap / mouse wheel down
+            </p>
             <canvas id="canvas" width="600" height="400" style="width: 100%"></canvas>
         </main>
         <script src="main.js"></script>
