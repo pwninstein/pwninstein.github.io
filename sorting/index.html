@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Sorting</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" type="text/css" href="/base.css" />
+        <style type="text/css">
+            .config {
+                text-align: center;
+                margin: 1em;
+            }
+            .input-group {
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="page wide stack">
+            <a href="/">Home</a>
+            <h1>Sorting</h1>
+            <div class="config">
+                <div class="input-group">
+                    <label>Algorithm</label>
+                    <select id="selectedAlgorithmInput" onchange="setAlgorithm(this.value)">
+                        <option value="bubbleSort">Bubble Sort</option>
+                        <option value="selectionSort">Selection Sort</option>
+                        <option value="insertionSort">Insertion Sort</option>
+                        <option value="gnomeSort">Gnome Sort</option>
+                        <option value="shakerSort">Shaker Sort</option>
+                        <option value="oddEvenSort">Odd/Even Sort</option>
+                        <option value="pancakeSort">Pancake Sort</option>
+                        <option value="quickSort">Quick Sort</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Elements</label>
+                    <select id="elementCountInput" onchange="setElementCount(+this.value)">
+                        <option value="10">10</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="250">250</option>
+                        <option value="500">500</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Swap Delay</label>
+                    <select id="swapDelayInput" onchange="setSwapDelay(+this.value)">
+                        <option value="10">10ms</option>
+                        <option value="25" selected>25ms</option>
+                        <option value="50">50ms</option>
+                        <option value="100">100ms</option>
+                        <option value="250">250ms</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="shuffleButton" onClick="shuffle()">Shuffle</button>
+                    <button id="goButton" onClick="startSorting()">Go</button>
+                    <button id="pauseResumeButton" onClick="pauseResume()">Pause</button>
+                    <button id="cancelButton" onClick="cancel()">Cancel</button>
+                </div>
+            </div>
+            <canvas id="canvas" style="background-color: &quot;#111111&quot;" width="1024" height="768"></canvas>
+        </main>
+        <script src="main.js"></script>
+    </body>
+</html>
