@@ -12,6 +12,7 @@
             }
             .input-group {
                 display: inline-block;
+                margin: 0.5em;
             }
         </style>
     </head>
@@ -21,37 +22,43 @@
             <h1>Sorting</h1>
             <div class="config">
                 <div class="input-group">
-                    <label>Algorithm</label>
-                    <select id="selectedAlgorithmInput" onchange="setAlgorithm(this.value)">
-                        <option value="bubbleSort">Bubble Sort</option>
-                        <option value="selectionSort">Selection Sort</option>
-                        <option value="insertionSort">Insertion Sort</option>
-                        <option value="gnomeSort">Gnome Sort</option>
-                        <option value="shakerSort">Shaker Sort</option>
-                        <option value="oddEvenSort">Odd/Even Sort</option>
-                        <option value="pancakeSort">Pancake Sort</option>
-                        <option value="quickSort">Quick Sort</option>
-                    </select>
+                    <label>
+                        Algorithm:
+                        <select id="selectedAlgorithmInput" onchange="setAlgorithm(this.value)">
+                            <option value="bubbleSort">Bubble Sort</option>
+                            <option value="selectionSort">Selection Sort</option>
+                            <option value="insertionSort">Insertion Sort</option>
+                            <option value="gnomeSort">Gnome Sort</option>
+                            <option value="shakerSort">Shaker Sort</option>
+                            <option value="oddEvenSort">Odd/Even Sort</option>
+                            <option value="pancakeSort">Pancake Sort</option>
+                            <option value="quickSort">Quick Sort</option>
+                        </select>
+                    </label>
                 </div>
                 <div class="input-group">
-                    <label>Elements</label>
-                    <select id="elementCountInput" onchange="setElementCount(+this.value)">
-                        <option value="10">10</option>
-                        <option value="50" selected>50</option>
-                        <option value="100">100</option>
-                        <option value="250">250</option>
-                        <option value="500">500</option>
-                    </select>
+                    <label>
+                        Elements:
+                        <select id="elementCountInput" onchange="setElementCount(+this.value)">
+                            <option value="10">10</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="250">250</option>
+                            <option value="500">500</option>
+                        </select>
+                    </label>
                 </div>
                 <div class="input-group">
-                    <label>Swap Delay</label>
-                    <select id="swapDelayInput" onchange="setSwapDelay(+this.value)">
-                        <option value="10">10ms</option>
-                        <option value="25" selected>25ms</option>
-                        <option value="50">50ms</option>
-                        <option value="100">100ms</option>
-                        <option value="250">250ms</option>
-                    </select>
+                    <label>
+                        Swap Delay:
+                        <select id="swapDelayInput" onchange="setSwapDelay(+this.value)">
+                            <option value="10">10ms</option>
+                            <option value="25" selected>25ms</option>
+                            <option value="50">50ms</option>
+                            <option value="100">100ms</option>
+                            <option value="250">250ms</option>
+                        </select>
+                    </label>
                 </div>
                 <div>
                     <button id="shuffleButton" onClick="shuffle()">Shuffle</button>
