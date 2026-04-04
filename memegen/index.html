@@ -87,6 +87,11 @@
             /** @type {HTMLButtonElement} */
             var loadFontsButton = document.getElementById("loadFontsButton");
 
+            if (window.queryLocalFonts == null) {
+                loadFontsButton.disabled = true;
+                loadFontsButton.hidden = true;
+            }
+
             image.crossOrigin = "Anonymous";
             image.referrerPolicy = "no-referrer";
             image.onload = function () {
