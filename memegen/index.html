@@ -1,72 +1,173 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Meme Generator</title>
-    <script type="text/javascript">
-        var image, ctx;
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Meme Generator</title>
+        <link rel="stylesheet" type="text/css" href="/base.css" />
+        <style type="text/css">
+            #topText,
+            #bottomText {
+                display: block;
+                margin-top: 0.25em;
+                width: 100%;
+            }
+            #downloadLink {
+                text-align: center;
+            }
+            .config-group {
+                justify-content: center;
+                gap: 0.5em;
+                display: flex;
+                margin-bottom: 0.5em;
+            }
+            .url-picker {
+                display: flex;
+                gap: 0.5em;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            image = new Image();
-            ctx = canvas.getContext('2d');
-            
+                input[type="text"] {
+                    flex-grow: 1;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main class="page stack">
+            <a href="/">Home</a>
+            <h1>Meme Generator</h1>
+            <div class="url-picker">
+                <input type="text" id="imageUrl" placeholder="url (imgur works)" />
+                <input type="button" value="Get image" onclick="populateCanvasImage(imageUrl.value)" />
+            </div>
+            <div>
+                <textarea id="topText" placeholder="top text" onkeyup="redraw()" rows="3"></textarea>
+                <textarea id="bottomText" placeholder="bottom text" onkeyup="redraw()" rows="3"></textarea>
+                <br />
+                <div class="config-group">
+                    <label>
+                        Font:
+                        <select id="fontInput" onchange="setFont(this.value)">
+                            <option value="Impact" selected>Impact</option>
+                        </select>
+                    </label>
+                    <button id="loadFontsButton" onclick="getAllLocalFonts()">Load Local Fonts</button>
+                </div>
+                <div class="config-group">
+                    <label>
+                        Font Size:
+                        <select id="fontSizeInput" onchange="setFontSize(this.value)">
+                            <option value="32px">Extra Small</option>
+                            <option value="42px">Small</option>
+                            <option value="52px" selected>Medium</option>
+                            <option value="62px">Large</option>
+                            <option value="72px">Extra Large</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <canvas id="canvas" width="800" height="600" style="border: thin solid black"></canvas>
+            <a href="#" id="downloadLink" target="_blank" onclick="downloadImage(this)">Download</a>
+        </main>
+        <script type="text/javascript">
+            /** @type {HTMLCanvasElement} */
+            var canvas = document.getElementById("canvas");
+            var image = new Image();
+            /** @type {CanvasRenderingContext2D} */
+            var ctx = canvas.getContext("2d");
+            /** @type {HTMLInputElement} */
+            var topText = document.getElementById("topText");
+            /** @type {HTMLInputElement} */
+            var bottomText = document.getElementById("bottomText");
+            /** @type {HTMLSelectElement} */
+            var fontInput = document.getElementById("fontInput");
+            var font = fontInput.value;
+            /** @type {HTMLSelectElement} */
+            var fontSizeInput = document.getElementById("fontSizeInput");
+            var fontSize = fontSizeInput.value;
+            /** @type {HTMLButtonElement} */
+            var loadFontsButton = document.getElementById("loadFontsButton");
+
             image.crossOrigin = "Anonymous";
             image.referrerPolicy = "no-referrer";
             image.onload = function () {
-                drawText();
+                redraw();
             };
-        });
 
-        function populateCanvasImage(url) {
-            if (url != null) image.src = url;
-        }
-
-        function downloadImage(anchor) {
-            anchor.href = canvas.toDataURL();
-            anchor.download = "image.jpg";
-        }
-
-        function drawText() {
-            if (image.src) {
-                canvas.width = image.width;
-                canvas.height = image.height;
-                ctx.drawImage(image, 0, 0);
+            function setFontSize(value) {
+                fontSize = value;
+                redraw();
             }
-            
-            ctx.font = "normal 32px Impact";
-            ctx.fillStyle = "#FFFFFF";
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = "#000000";
 
-            var topX = 20;
-            var topY = 40;
-            var bottomX = 20;
-            var bottomY = canvas.height - 20;
+            function setFont(value) {
+                font = value;
+                redraw();
+            }
 
-            ctx.fillText(topText.value, topX, topY);
-            ctx.fillText(bottomText.value, bottomX, bottomY);
-            ctx.strokeText(topText.value, topX, topY);
-            ctx.strokeText(bottomText.value, bottomX, bottomY);
-        }
-    </script>
-    <style type="text/css">
-        #topText, #bottomText { display: block; margin-top: 0.25em; }
-        input[type=text] { width: 20em; }
-    </style>
-</head>
-<body>
-    <a href="/">Home</a>
-    <h1>Meme Generator</h1>
-    <div>
-        <input type="text" id="imageUrl" placeholder="url (imgur works)"/>
-        <input type="button" value="Get image" onclick="populateCanvasImage(imageUrl.value)"/>
-    </div>
-    <div>
-        <input type="text" id="topText" placeholder="top text" onkeyup="drawText()"/>
-        <input type="text" id="bottomText" placeholder="bottom text" onkeyup="drawText()"/>
-        <br />
-        <a href="#" id="downloadLink" target="_blank" onclick="downloadImage(this)">Download</a>
-    </div>
-    <canvas id="canvas" width="800" height="600" style="border: thin solid black;" />
-</body>
+            function populateCanvasImage(url) {
+                if (url != null) image.src = url;
+            }
+
+            function downloadImage(anchor) {
+                anchor.href = canvas.toDataURL();
+                anchor.download = "image.jpg";
+            }
+
+            function redraw() {
+                ctx.reset();
+
+                if (image.src) {
+                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                }
+
+                ctx.save();
+                ctx.font = `normal ${fontSize} ${font}`;
+                ctx.fillStyle = "#FFFFFF";
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "#000000";
+
+                drawTextLines(topText, true);
+                drawTextLines(bottomText, false);
+
+                ctx.restore();
+            }
+
+            /** @param {HTMLTextAreaElement} textArea */
+            function drawTextLines(textArea, isTop) {
+                const lines = textArea.value.split("\n").filter((l) => l.trim() != "");
+                const linePadding = 10;
+                const heightMetrics = ctx.measureText("|");
+                const lineHeight = heightMetrics.actualBoundingBoxAscent + heightMetrics.actualBoundingBoxDescent;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[isTop ? i : lines.length - i - 1];
+                    const widthMetrics = ctx.measureText(line);
+                    const x = canvas.width / 2 - widthMetrics.width / 2;
+                    const yOffset = i * lineHeight + i * linePadding + linePadding * 2;
+                    const y = isTop ? lineHeight + yOffset : canvas.height - yOffset - linePadding;
+
+                    ctx.strokeText(line, x, y);
+                    ctx.fillText(line, x, y);
+                }
+            }
+
+            async function getAllLocalFonts() {
+                try {
+                    const availableFonts = await window.queryLocalFonts();
+                    var fontFamilies = new Set();
+                    availableFonts.forEach((font) => {
+                        if (fontFamilies.has(font.family)) return;
+
+                        fontFamilies.add(font.family);
+
+                        fontInput.add(new Option(font.family, font.family));
+                    });
+
+                    loadFontsButton.disabled = true;
+                    loadFontsButton.hidden = true;
+                } catch (err) {
+                    console.error(`${err.name}: ${err.message}`);
+                }
+            }
+        </script>
+    </body>
 </html>
