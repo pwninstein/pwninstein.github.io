@@ -1,45 +1,33 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
-	<head>
-		<title>Horadric Cube</title>
+    <head>
+        <title>Horadric Cube</title>
+        <link rel="stylesheet" type="text/css" href="/base.css" />
         <link rel="stylesheet" type="text/css" href="cube.css" />
-        <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/ui-lightness/jquery-ui.css" />
-        <script type="text/javascript" src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-        <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="cube.js"></script>
-	</head>
-	<body>
-        <h1>Horadric Cube</h1>
-        <h4>This is a (very poor) recreation of a cool feature of Diablo 2. <a href="http://diablo2.diablowiki.net/Horadric_Cube" target="_blank">See here</a> if you don't know what's up!</h4>
-		<em>Click on an item below to add it to your inventory</em>
-		<div id="toolbar"></div>
-		<em>Drag items into the cube and press 'Transmute' to combine them</em>
-		<div id="drag-threshold">
-            <div class="box">
-                <h2>Cube</h2>
-                <div id="cube-container">
-                    <button id="clear-cube-button">Clear</button>
-                    <div id="horadric-cube" class="slotted" data-slots="12"></div>
-                    <button id="transmute">Transmute</button>
+    </head>
+    <body>
+        <main class="page stack">
+            <a href="/">Home</a>
+            <h1>Horadric Cube</h1>
+            <div id="toolbox"></div>
+            <div class="flex-horizontal">
+                <div class="flex-vertical">
+                    <h2>Cube</h2>
+                    <button id="clear-cube-button" onclick="clearContents(horadricCube)">Clear</button>
+                    <div id="horadricCube"></div>
+                    <button onclick="transmute()">Transmute</button>
                 </div>
-            </div>
-            <div class="box">
-                <h2>Inventory</h2>
-                <div id="inventory-container">
-                    <button id="clear-inventory-button">Clear</button>
+                <div class="flex-vertical">
+                    <h2>Inventory</h2>
+                    <button id="clearInventoryButton" onclick="clearContents(inventory)">Clear</button>
                     <div id="inventory" class="slotted" data-slots="40"></div>
                 </div>
             </div>
-            <div class="box">
+            <div class="flex-vertical">
                 <h2>Rules</h2>
-                <div id="rules-container">
-                    <div id="rules"></div>
-                </div>
+                <ul id="ruleList"></ul>
             </div>
-		</div>
-        <footer> 
-            <ul>
-            </ul>
-        </footer>
-	</body>
+        </main>
+        <script src="cube.js"></script>
+    </body>
 </html>
