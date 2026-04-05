@@ -1,0 +1,37 @@
+﻿<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Encode / Hash</title>
+        <link rel="stylesheet" type="text/css" href="/base.css" />
+        <style type="text/css">
+            textarea {
+                width: 100%;
+            }
+            select {
+                display: block;
+                min-width: 250px;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="page stack">
+            <a href="/">Home</a>
+            <h1>Encode / Hash</h1>
+            <div>
+                <label for="algorithmSelect">Algorithm</label>
+                <select id="algorithmSelect" onchange="setAlgorithm(this.value)"></select>
+            </div>
+            <div>
+                <label for="inputTextArea">Input</label>
+                <textarea id="inputTextArea" rows="3" onkeyup="run()"></textarea>
+            </div>
+            <div>
+                <label for="outputTextArea">Output</label>
+                <textarea id="outputTextArea" readonly="true" rows="3"></textarea>
+            </div>
+        </main>
+        <script src="main.js"></script>
+    </body>
+</html>
