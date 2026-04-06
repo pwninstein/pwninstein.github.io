@@ -225,26 +225,91 @@ for (var item of items) {
     e.classList.add("slot", "item");
     e.dataset.itemId = item.id;
     e.title = item.name;
+    e.draggable = true;
     toolbox.appendChild(e);
     itemLookup.set(item.id, item);
 }
 
 for (var i = 0; i < 12; i++) {
     var e = document.createElement("div");
+    e.id = crypto.randomUUID();
     e.classList.add("slot");
+    e.draggable = true;
     horadricCube.appendChild(e);
 }
 
 for (var i = 0; i < 40; i++) {
     var e = document.createElement("div");
+    e.id = crypto.randomUUID();
     e.classList.add("slot");
+    e.draggable = true;
     inventory.appendChild(e);
 }
 
 for (var rule of rules) {
     var e = document.createElement("li");
-    var inputsText = rule.inputs.map((i) => itemLookup.get(i).name).join(' + ');
+    var inputsText = rule.inputs.map((i) => itemLookup.get(i).name).join(" + ");
     var outputText = itemLookup.get(rule.output).name;
     e.innerText = `${inputsText} = ${outputText}`;
     ruleList.appendChild(e);
 }
+
+function dragStarted(e) {
+    if (!e.target?.classList?.contains("item")) {
+        e.preventDefault();
+        return;
+    }
+
+    const data = {
+        itemId: e.target.dataset.itemId,
+        slotIdToClear: e.target.id || undefined,
+    };
+
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("application/json", JSON.stringify(data));
+}
+
+function dragOver(e) {
+    if (!e.target?.classList?.contains("slot")) return;
+    if (e.target.classList.contains("item")) return;
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    e.target.classList.add("highlight");
+}
+
+function dragLeave(e) {
+    if (!e.target?.classList?.contains("slot")) return;
+
+    e.preventDefault();
+    e.target.classList.remove("highlight");
+}
+
+function drop(e) {
+    e.preventDefault();
+
+    const data = JSON.parse(e.dataTransfer.getData("application/json"));
+
+    e.target.classList.remove("highlight");
+    e.target.classList.add("item");
+    e.target.dataset.itemId = data.itemId;
+
+    if (data.slotIdToClear != null) {
+        var slotElement = document.getElementById(data.slotIdToClear);
+        slotElement.classList.remove("item");
+        delete slotElement.dataset.itemId;
+    }
+}
+
+toolbox.ondragstart = dragStarted;
+inventory.ondragstart = dragStarted;
+horadricCube.ondragstart = dragStarted;
+
+inventory.ondragover = dragOver;
+horadricCube.ondragover = dragOver;
+
+inventory.ondragleave = dragLeave;
+horadricCube.ondragleave = dragLeave;
+
+inventory.ondrop = drop;
+horadricCube.ondrop = drop;

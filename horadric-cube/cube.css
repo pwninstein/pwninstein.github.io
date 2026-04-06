@@ -40,6 +40,11 @@
 	border: thin solid gray;
 }
 
+.slot.highlight {
+	background-color: lightgray;
+	cursor: copy;
+}
+
 .item { 
 	height: var(--item-size);
 	width: var(--item-size);
